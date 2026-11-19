@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Wuki: el collar con Emotion AI y Embedded AI que detecta cómo se siente tu mascota.">
+<link rel="icon" href="img/icon.png">
+<title>Wuki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: campaign page — story column on the left, sticky funding + rewards column on the right; stacks on phones. Colors follow the Wuki brand: navy collar, white paw module, cyan status light. */
+:root{
+  --bg:#f4f7fa; --surface:#ffffff; --tint:#e3f3f5; --fg:#0b1f35; --muted:#4f6078; --line:#d9e1ea;
+  --accent:#0a7d88; --accent-ink:#ffffff; --accent-soft:#2fc3cd; --navy:#09203a; --alert:#c25a2a;
+  --display:"Outfit", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#07172a; --surface:#0e2238; --tint:#12304a; --fg:#e8eef5; --muted:#9cadc1; --line:#1e3953;
+  --accent:#4fd6df; --accent-ink:#04212a; --accent-soft:#2aa9b3; --navy:#0e2238; --alert:#ee9566; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#07172a; --surface:#0e2238; --tint:#12304a; --fg:#e8eef5; --muted:#9cadc1; --line:#1e3953;
+  --accent:#4fd6df; --accent-ink:#04212a; --accent-soft:#2aa9b3; --navy:#0e2238; --alert:#ee9566; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16.5px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.12;text-wrap:balance;margin:0}
+h2{font-size:clamp(1.6rem,3vw,2.1rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent-soft);outline-offset:2px;border-radius:6px}
+
+/* top bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:20px;padding-block:12px;flex-wrap:wrap}
+.logo{font-family:var(--display);font-weight:800;font-size:1.5rem;color:var(--fg);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo img{width:32px;height:32px;border-radius:8px;display:block}
+.nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.nav a{color:var(--muted);text-decoration:none;font-weight:600;font-size:.92rem;padding:6px 10px;border-radius:8px}
+.nav a:hover{background:var(--tint);color:var(--fg)}
+.note{background:var(--tint);color:var(--muted);font-size:.85rem;text-align:center;padding:6px 16px}
+
+/* hero */
+.hero{padding-block:36px 28px}
+.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+.hero h1{font-size:clamp(2rem,4.6vw,3.3rem);font-weight:800;margin-top:8px;max-width:20ch}
+.hero .lede{font-size:1.15rem;color:var(--muted);margin-top:12px;max-width:62ch}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:28px;margin-top:28px;align-items:start}
+.media{border-radius:var(--r);overflow:hidden;background:#09203a;aspect-ratio:16/9;max-width:100%}
+.media video{width:100%;height:100%;display:block;object-fit:cover}
+.app{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:center;background:var(--navy);color:#e8eef5;border-radius:var(--r);padding:22px}
+.app p{color:#b9c6d6}
+.reading{background:#ffffff;color:#0b1f35;border-radius:16px;padding:14px 16px;font-size:.9rem;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.reading .head{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.reading .state{color:#b14d1f}
+.reading dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:10px 0 0}
+.reading dt{color:#4f6078;font-size:.74rem}
+.reading dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums}
+.reading .tag{display:block;margin-top:10px;color:#4f6078;font-size:.78rem}
+.gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block}
+.gallery .wide{grid-column:span 2;aspect-ratio:auto;height:100%}
+
+.fund{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:16px}
+.track{height:10px;background:var(--tint);border-radius:99px;overflow:hidden}
+.track span{display:block;height:100%;width:69.5%;background:var(--accent);border-radius:99px}
+.stat b{display:block;font-family:var(--display);font-size:2rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1.1}
+.stat small{color:var(--muted);font-size:.9rem}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;background:var(--accent);color:var(--accent-ink);font-weight:700;font-family:var(--body);font-size:1rem;border:0;border-radius:10px;padding:13px 18px;text-decoration:none;cursor:pointer;width:100%}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+.fine{font-size:.82rem;color:var(--muted)}
+
+/* body layout */
+.main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:28px;padding-block:20px 60px}
+.story{display:flex;flex-direction:column;gap:54px;min-width:0}
+.story section{display:flex;flex-direction:column;gap:16px;scroll-margin-top:90px}
+.story p{max-width:66ch}
+.figure{border-radius:var(--r);overflow:hidden;max-width:100%}
+.figure img{display:block;width:100%}
+
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;list-style:none;padding:0;margin:0;counter-reset:s}
+.steps li{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;counter-increment:s;display:flex;flex-direction:column;gap:6px}
+.steps li::before{content:"Paso " counter(s);font-size:.75rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)}
+.steps p{font-size:.95rem;color:var(--muted)}
+
+.detects{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.detects div{background:var(--tint);border-radius:12px;padding:14px}
+.detects b{display:block;font-family:var(--display);font-size:1.1rem}
+.detects span{font-size:.88rem;color:var(--muted)}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.panel img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.panel .in{padding:18px;display:flex;flex-direction:column;gap:8px}
+.panel p{font-size:.95rem;color:var(--muted)}
+.hc{font-size:.85rem;border-top:1px solid var(--line);padding-top:10px;margin-top:4px;color:var(--fg)}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.93rem;min-width:520px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.mono{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.yes{color:var(--accent);font-weight:700}
+.no{color:var(--muted)}
+
+.funds{display:flex;flex-direction:column;gap:10px}
+.fr{display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:4px 12px;align-items:center}
+.fr .lbl{font-weight:600;font-size:.95rem}
+.fr .pct{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.fr .b{grid-column:1/-1;height:8px;background:var(--tint);border-radius:99px;overflow:hidden}
+.fr .b span{display:block;height:100%;background:var(--accent-soft);border-radius:99px}
+
+.timeline{list-style:none;padding:0;margin:0;display:flex;flex-direction:column}
+.timeline li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:14px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.timeline li:last-child{border-bottom:0}
+.timeline time{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
+
+.risks{display:flex;flex-direction:column;gap:12px}
+.risk{border-left:4px solid var(--alert);background:var(--surface);border-radius:0 12px 12px 0;padding:14px 16px}
+.risk b{display:block}
+.risk p{font-size:.95rem;color:var(--muted)}
+
+.team{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.member{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center}
+.av{flex:none;width:42px;height:42px;border-radius:50%;background:var(--tint);color:var(--accent);display:grid;place-items:center;font-weight:800;font-family:var(--display)}
+.member b{display:block;font-size:.95rem;line-height:1.3}
+.member span{font-size:.82rem;color:var(--muted)}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+details+details{margin-top:10px}
+summary{font-weight:700;cursor:pointer}
+details p{margin-top:8px;color:var(--muted)}
+
+.docs{background:var(--tint);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;gap:14px}
+.doclist{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px}
+.doclist li{font-size:.95rem;padding-left:18px;position:relative}
+.doclist li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:8px;border-radius:2px;background:var(--accent)}
+.docs .btn{width:auto;align-self:flex-start}
+
+/* rewards column */
+.side{display:flex;flex-direction:column;gap:14px;align-self:start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 76px);min-width:0}
+.side h2{font-size:1.4rem}
+.reward{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:8px}
+.reward.hot{border:2px solid var(--accent)}
+.reward .price{font-family:var(--display);font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.reward .price small{font-family:var(--body);font-size:.85rem;color:var(--muted);font-weight:500}
+.reward ul{margin:0;padding-left:18px;font-size:.92rem;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted)}
+.pill{align-self:flex-start;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;background:var(--accent);color:var(--accent-ink);padding:3px 8px;border-radius:99px}
+.toast{background:var(--fg);color:var(--bg);border-radius:10px;padding:12px 14px;font-size:.9rem}
+
+footer{border-top:1px solid var(--line);padding-block:26px;color:var(--muted);font-size:.88rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between}
+
+@media (max-width:900px){
+  .hero-grid,.main{grid-template-columns:minmax(0,1fr)}
+  .side{position:static}
+  .detects{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .steps,.two,.doclist{grid-template-columns:minmax(0,1fr)}
+  .nav{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap}
+  .timeline li{grid-template-columns:minmax(0,1fr);gap:2px}
+  .reading dl{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .app{grid-template-columns:minmax(0,1fr)}
+  .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gallery .wide{grid-column:span 2;aspect-ratio:16/9;height:auto}
+}
+@media (prefers-reduced-motion:no-preference){
+  .track span{animation:grow 1.2s ease-out both}
+  @keyframes grow{from{width:0}}
+}
+
+html{color-scheme:light}img{max-width:100%}[hidden]{display:none!important}
+body{margin:0}
+</style>
+</head>
+<body>
+<div class="note">Campaña de preventa simulada · Proyecto académico, Universidad El Bosque · No se realizan cobros reales</div>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Wuki, inicio">
+      <img src="img/icon.png" alt="">
+      wuki
+    </a>
+    <nav class="nav" aria-label="Secciones">
+      <a href="#historia">Campaña</a>
+      <a href="#tecnologia">Tecnología</a>
+      <a href="#negocio">Modelo de negocio</a>
+      <a href="#recompensas">Recompensas</a>
+      <a href="#riesgos">Riesgos</a>
+      <a href="#faq">FAQ</a>
+      <a href="#documentos">Documentos</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap hero" id="top">
+  <span class="eyebrow">Tecnología para mascotas · Bogotá, Colombia</span>
+  <h1>Wuki: el collar que entiende cómo se siente tu mascota</h1>
+  <p class="lede">Un collar con sensores para perros y gatos que detecta si tu mascota está ansiosa, con dolor, con hambre o enferma, y te avisa en el celular para que actúes a tiempo.</p>
+
+  <div class="hero-grid">
+    <div class="media">
+      <video src="wuki.mp4" poster="img/poster.jpg" controls playsinline preload="metadata" aria-label="Video de la campaña Wuki"></video>
+    </div>
+
+    <aside class="fund" aria-label="Estado de la campaña">
+      <div class="track" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100" aria-label="69 % de la meta"><span></span></div>
+      <div class="stat"><b>US$ 31.280</b><small>comprometidos de una meta de US$ 45.000</small></div>
+      <div class="stat"><b>412</b><small>patrocinadores</small></div>
+      <div class="stat"><b>18</b><small>días restantes</small></div>
+      <a class="btn" href="#recompensas">Apoyar este proyecto</a>
+      <p class="fine">Financiación todo o nada: si no se alcanza la meta, nadie paga. Cifras ilustrativas de la simulación.</p>
+    </aside>
+  </div>
+</div>
+
+<div class="wrap main">
+  <div class="story">
+
+    <section id="historia">
+      <span class="eyebrow">La historia</span>
+      <h2>Tu mascota no puede decirte que algo le duele</h2>
+      <p>Muchos hogares tienen un perro o un gato, y casi siempre nos enteramos de que algo anda mal cuando ya es evidente: dejó de comer, cojea o lleva días decaído. Los animales esconden el dolor y el estrés, y las señales tempranas pasan desapercibidas.</p>
+      <p>Wuki nace para leer esas señales. El collar mide el cuerpo y el comportamiento de la mascota todo el día, interpreta qué está sintiendo y te avisa antes de que el problema crezca.</p>
+      <div class="gallery">
+        <img class="wide" src="img/golden.jpg" alt="Golden retriever con el collar Wuki azul marino y el módulo blanco en forma de huella" loading="lazy">
+        <img src="img/cat.jpg" alt="Gato atigrado con el collar Wuki" loading="lazy">
+        <img src="img/splash.jpg" alt="Perro sacudiéndose el agua en un lago con el collar Wuki puesto" loading="lazy">
+        <img src="img/walk.jpg" alt="Persona paseando a su perro, que lleva el collar Wuki" loading="lazy">
+        <img src="img/charger.jpg" alt="Módulo Wuki cargándose en su base" loading="lazy">
+      </div>
+    </section>
+
+    <section id="como-funciona">
+      <h2>Cómo funciona</h2>
+      <ol class="steps">
+        <li><h3>Mide</h3><p>Sensores de pulso, temperatura, respiración y un acelerómetro registran el cuerpo y el movimiento de la mascota.</p></li>
+        <li><h3>Interpreta en el collar</h3><p>Un modelo de Emotion AI corre dentro del collar (Embedded AI) y clasifica el estado: tranquilo, ansioso, con dolor, con hambre o enfermo.</p></li>
+        <li><h3>Te avisa</h3><p>Si detecta algo, envía una alerta al celular con lo que observó y una recomendación, como consultar al veterinario.</p></li>
+      </ol>
+      <div class="detects" aria-label="Estados que detecta">
+        <div><b>Ansiedad</b><span>pulso alto y jadeo sin ejercicio</span></div>
+        <div><b>Dolor</b><span>cambios en la marcha y menos actividad</span></div>
+        <div><b>Hambre</b><span>inquietud en horarios de comida</span></div>
+        <div><b>Enfermedad</b><span>fiebre o patrones anormales sostenidos</span></div>
+      </div>
+      <div class="app">
+        <div>
+          <h3>Así llega una alerta a tu celular</h3>
+          <p>La app te dice qué notó el collar, desde cuándo y qué hacer. Los valores son un ejemplo para un perro adulto.</p>
+        </div>
+        <div class="reading" role="note" aria-label="Ejemplo de alerta en la app">
+          <div class="head"><span>Luna · ahora</span><span class="state">Posible ansiedad</span></div>
+          <dl>
+            <div><dt>Pulso</dt><dd>128 lpm</dd></div>
+            <div><dt>Temperatura</dt><dd>38,9 °C</dd></div>
+            <div><dt>Respiración</dt><dd>34 rpm</dd></div>
+          </dl>
+          <span class="tag">Pulso alto y jadeo sin actividad física desde hace 12 min. Llévala a un lugar tranquilo.</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="tecnologia">
+      <span class="eyebrow">La tecnología</span>
+      <h2>Dos tecnologías emergentes en un solo collar</h2>
+      <div class="two">
+        <article class="panel">
+          <img src="img/cat.jpg" alt="" loading="lazy">
+          <div class="in">
+            <h3>Emotion AI</h3>
+            <p>También llamada computación afectiva: sistemas que identifican, interpretan y responden a estados emocionales (Gartner; IEEE P7014; ISO/IEC 30150). Wuki lleva ese principio de las personas a los animales.</p>
+            <p class="hc">En los Hype Cycles de Gartner: Innovation Trigger en 2019; en ventas pasa del pico (2024) al abismo de desilusión (2025) por privacidad, sesgo y regulación.</p>
+          </div>
+        </article>
+        <article class="panel">
+          <img src="img/module.jpg" alt="Despiece del collar: correa, soporte, placa de sensores y módulo en forma de huella" loading="lazy" style="object-fit:contain;background:#fff">
+          <div class="in">
+            <h3>Embedded AI</h3>
+            <p>Ejecuta los modelos en el mismo dispositivo donde nacen los datos, con TinyML sobre microcontroladores de bajo consumo. Menos latencia, menos datos enviados y más privacidad.</p>
+            <p class="hc">En los Hype Cycles de Gartner: pico de expectativas en 2020; hoy forma parte del Edge AI, un campo inmaduro que avanza rápido (2026).</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="diferencial">
+      <h2>Qué hace distinto a Wuki</h2>
+      <p>Ya existen collares de monitoreo patentados. Todos miden actividad o signos vitales, pero ninguno clasifica el estado emocional del animal. Ese es el espacio que ocupa Wuki.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Patente</th><th>Titular</th><th>Qué cubre</th><th>Estado emocional</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">US 9 615 547 B2</td><td>PetPace</td><td>Acelerómetro y sensores de temperatura, pulso y respiración; alertas ante posible condición médica</td><td class="no">No</td></tr>
+            <tr><td class="mono">US 9 807 982 B2</td><td>Petrics</td><td>Collar que activa módulos (comedero, bebedero, cama) que registran datos de salud</td><td class="no">No</td></tr>
+            <tr><td class="mono">US 10 376 020 B1</td><td>Mars Inc. / Tractive</td><td>Doble retención para fijar un dispositivo removible, como un rastreador</td><td class="no">No</td></tr>
+            <tr><td class="mono">—</td><td><b>Wuki</b></td><td>Sensado fisiológico + modelo de Emotion AI dentro del collar + alertas al celular</td><td class="yes">Sí</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="negocio">
+      <span class="eyebrow">Modelo de negocio</span>
+      <h2>Quién lo usa, quién paga y cómo se financia</h2>
+      <div class="tablewrap">
+        <table>
+          <tbody>
+            <tr><th scope="row">Usuarios</th><td>Dueños de perros y gatos. Muchos hogares tienen al menos una mascota.</td></tr>
+            <tr><th scope="row">Clientes</th><td>Los dueños, que compran el collar. Veterinarias y marcas de comida para mascotas, por medio de alianzas.</td></tr>
+            <tr><th scope="row">Ingresos</th><td>Venta del collar y una suscripción pequeña (US$ 4/mes) para los informes de salud.</td></tr>
+            <tr><th scope="row">Financiación</th><td>Esta preventa financia la fabricación del primer lote. Después, alianzas con veterinarias y marcas de comida.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="fondos">
+      <h2>En qué usaremos el dinero</h2>
+      <div class="funds">
+        <div class="fr"><span class="lbl">Fabricación del primer lote de collares</span><span class="pct">40 %</span><span class="b"><span style="width:40%"></span></span></div>
+        <div class="fr"><span class="lbl">Entrenamiento y validación del modelo con veterinarias</span><span class="pct">25 %</span><span class="b"><span style="width:25%"></span></span></div>
+        <div class="fr"><span class="lbl">App móvil e informes de salud</span><span class="pct">15 %</span><span class="b"><span style="width:15%"></span></span></div>
+        <div class="fr"><span class="lbl">Certificaciones y propiedad intelectual</span><span class="pct">10 %</span><span class="b"><span style="width:10%"></span></span></div>
+        <div class="fr"><span class="lbl">Comisión de la plataforma y pagos</span><span class="pct">10 %</span><span class="b"><span style="width:10%"></span></span></div>
+      </div>
+    </section>
+
+    <section id="cronograma">
+      <h2>Cronograma</h2>
+      <ol class="timeline">
+        <li><time>Dic 2026</time><span>Lanzamiento de la campaña de preventa</span></li>
+        <li><time>Feb 2027</time><span>Prototipo final del collar y del módulo de sensores</span></li>
+        <li><time>Abr 2027</time><span>Validación del modelo con veterinarias aliadas</span></li>
+        <li><time>Jun 2027</time><span>Producción del primer lote</span></li>
+        <li><time>Ago 2027</time><span>Envío a los patrocinadores</span></li>
+      </ol>
+    </section>
+
+    <section id="riesgos">
+      <span class="eyebrow">Riesgos y desafíos</span>
+      <h2>Lo que puede salir mal y cómo lo manejamos</h2>
+      <div class="risks">
+        <div class="risk"><b>Precisión del modelo</b><p>Interpretar emociones es difícil y Gartner ubica a Emotion AI en el abismo de desilusión. Validamos el modelo con veterinarias y Wuki se presenta como apoyo, no como diagnóstico.</p></div>
+        <div class="risk"><b>Privacidad de los datos</b><p>Procesar en el collar (Embedded AI) reduce lo que sale del dispositivo. Al celular solo llegan alertas y resúmenes.</p></div>
+        <div class="risk"><b>Batería y tamaño</b><p>Un modelo dentro del collar consume energía. Usamos TinyML en microcontroladores de bajo consumo y un diseño apto para gatos.</p></div>
+        <div class="risk"><b>Fabricación y entregas</b><p>Los primeros lotes suelen retrasarse. Publicaremos actualizaciones mensuales del avance.</p></div>
+      </div>
+    </section>
+
+    <section id="equipo">
+      <h2>El equipo</h2>
+      <div class="team">
+        <div class="member"><span class="av">MO</span><div><b>Mariana Ovallos Romero</b><span>Idea de Wuki y modelo de negocio</span></div></div>
+        <div class="member"><span class="av">MZ</span><div><b>Michael Sebastian Zabala Avila</b><span>Emotion AI</span></div></div>
+        <div class="member"><span class="av">KM</span><div><b>Katherine Murcia Acosta</b><span>Análisis de Hype Cycles</span></div></div>
+        <div class="member"><span class="av">JM</span><div><b>Juan Camilo Martin Barrero</b><span>Embedded AI</span></div></div>
+        <div class="member"><span class="av">BR</span><div><b>Brian Steban Rodríguez Ortiz</b><span>Patentes y conclusiones</span></div></div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>Preguntas frecuentes</h2>
+      <div>
+        <details><summary>¿Sirve para perros y gatos?</summary><p>Sí. El collar viene en dos tamaños y el modelo se ajusta a la especie y al tamaño de la mascota.</p></details>
+        <details><summary>¿Reemplaza al veterinario?</summary><p>No. Wuki detecta señales tempranas y te recomienda cuándo consultar. El diagnóstico siempre lo da un veterinario.</p></details>
+        <details><summary>¿Necesito pagar la suscripción?</summary><p>Las alertas en tiempo real son gratis. La suscripción de US$ 4/mes agrega informes de salud históricos para compartir con tu veterinaria.</p></details>
+        <details><summary>¿Qué pasa si la campaña no llega a la meta?</summary><p>La financiación es todo o nada: si no se alcanza la meta, no se cobra a nadie.</p></details>
+      </div>
+    </section>
+
+    <section id="documentos">
+      <span class="eyebrow">Archivos del proyecto</span>
+      <h2>Diseños y documentos</h2>
+      <div class="docs">
+        <p>Todo el material de la innovación está en una carpeta compartida:</p>
+        <ul class="doclist">
+          <li>Diseños del collar y del módulo de sensores</li>
+          <li>Informe: Emotion AI y Embedded AI en los Hype Cycles de Gartner</li>
+          <li>Presentación del proyecto</li>
+          <li>Modelo de negocio de Wuki</li>
+          <li>Análisis de patentes</li>
+          <li>Referencias (Gartner, IEEE, ISO/IEC, MDPI)</li>
+        </ul>
+        <a class="btn" id="docs-link" href="#documentos">Abrir carpeta de diseños y documentos</a>
+      </div>
+    </section>
+  </div>
+
+  <aside class="side" id="recompensas" aria-label="Recompensas">
+    <h2>Elige tu recompensa</h2>
+    <div class="reward">
+      <span class="price">US$ 15</span>
+      <h3>Amigo de Wuki</h3>
+      <ul><li>Agradecimiento en la app</li><li>Stickers de huellas Wuki</li></ul>
+      <div class="meta"><span>58 patrocinadores</span><span>Sin envío físico del collar</span></div>
+      <button class="btn ghost" type="button" data-tier="Amigo de Wuki">Apoyar con US$ 15</button>
+    </div>
+    <div class="reward hot">
+      <img src="img/box.jpg" alt="Caja de Wuki con el collar, el módulo y el cable de carga" style="border-radius:12px;display:block;width:100%">
+      <span class="pill">Early bird</span>
+      <span class="price">US$ 79 <small>precio final US$ 129</small></span>
+      <h3>Wuki early bird</h3>
+      <ul><li>1 collar Wuki (perro o gato)</li><li>6 meses de suscripción incluidos</li></ul>
+      <div class="meta"><span>Entrega estimada: ago 2027</span><span>Quedan 23 de 150</span></div>
+      <button class="btn" type="button" data-tier="Wuki early bird">Apoyar con US$ 79</button>
+    </div>
+    <div class="reward">
+      <span class="price">US$ 99</span>
+      <h3>Wuki preventa</h3>
+      <ul><li>1 collar Wuki (perro o gato)</li><li>6 meses de suscripción incluidos</li></ul>
+      <div class="meta"><span>Entrega estimada: ago 2027</span><span>174 patrocinadores</span></div>
+      <button class="btn ghost" type="button" data-tier="Wuki preventa">Apoyar con US$ 99</button>
+    </div>
+    <div class="reward">
+      <span class="price">US$ 179</span>
+      <h3>Pack dúo</h3>
+      <ul><li>2 collares Wuki</li><li>12 meses de suscripción para ambos</li></ul>
+      <div class="meta"><span>Entrega estimada: ago 2027</span><span>49 patrocinadores</span></div>
+      <button class="btn ghost" type="button" data-tier="Pack dúo">Apoyar con US$ 179</button>
+    </div>
+    <div class="reward">
+      <span class="price">US$ 499</span>
+      <h3>Aliado veterinario</h3>
+      <ul><li>5 collares Wuki para pacientes</li><li>Panel de informes para la clínica</li><li>Logo en la página de aliados</li></ul>
+      <div class="meta"><span>Entrega estimada: ago 2027</span><span>4 de 20</span></div>
+      <button class="btn ghost" type="button" data-tier="Aliado veterinario">Apoyar con US$ 499</button>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+  </aside>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Wuki · Proyecto académico presentado al profesor Edward Paul Guillen Pinto</span>
+    <span>Universidad El Bosque · 2026</span>
+  </div>
+</footer>
+
+<script>
+// Pega aquí el enlace de la carpeta (Drive, OneDrive, etc.)
+const DOCS_URL = "";
+const link = document.getElementById("docs-link");
+if (DOCS_URL) { link.href = DOCS_URL; link.target = "_blank"; link.rel = "noopener"; }
+
+const toast = document.getElementById("toast");
+document.querySelectorAll("[data-tier]").forEach(b => b.addEventListener("click", () => {
+  toast.textContent = "Elegiste «" + b.dataset.tier + "». Esta es una campaña simulada para un proyecto académico, así que no se realiza ningún cobro.";
+  toast.hidden = false;
+}));
+</script>
+</body>
+</html>
